@@ -14,7 +14,7 @@ from sqlalchemy.sql import text
 engine = create_engine("ibmi://nram:password12345678@oss72dev/?current_schema=SQLALC", echo=True)
 
 # Creating Tables
-
+print("Creating Tables")
 metadata = MetaData()
 users = Table('users', metadata,
               Column('id', Integer, primary_key=True),
@@ -31,7 +31,7 @@ addresses = Table('addresses', metadata,
 metadata.create_all(engine)
 
 # Insertions
-
+print("Insertions")
 with engine.connect() as conn:
     # single
     ins = users.insert().values(name='jack', fullname='Jack Jones')
@@ -44,6 +44,7 @@ with engine.connect() as conn:
         ])
 
     # Select statements
+    print("Select statements")
     result = conn.execute(select([users]))
 
     for row in result:
@@ -56,7 +57,7 @@ with engine.connect() as conn:
         print(row)
 
     # Conjunctions
-
+    print("Conjunctions")
     s = select([(users.c.fullname +
                 ", " + addresses.c.email_address).
                 label('title')]).\
@@ -74,21 +75,28 @@ with engine.connect() as conn:
     print(conn.execute(s).fetchall())
 
     # Textual SQL
+    print("Textual SQL")
+    s = "SELECT users.fullname || ', ' || addresses.email_address AS" \
+        " title FROM users, addresses WHERE users.id = " \
+        "addresses.user_id AND users.name BETWEEN ? AND ? " \
+        "AND (addresses.email_address LIKE ? " \
+        "OR addresses.email_address LIKE ?)" \
 
-    s = text("SELECT users.fullname || ', ' || addresses.email_address AS"
-             " title FROM users, addresses WHERE users.id = addresses.user_id "
-             "AND users.name BETWEEN :x AND :y "
-             "AND (addresses.email_address LIKE :e1 "
-             "OR addresses.email_address LIKE :e2)")
-
-    print(conn.execute(s, x='m', y='z', e1='%@aol.com', e2='%@msn.com').fetchall())
+    print(conn.execute(s, 'm', 'z', '%@aol.com', '%@msn.com').fetchall())
 
     # Updates
+    print("Updates")
     stmt = users.update(). where(users.c.name == 'jack').values(name='ed')
     conn.execute(stmt)
 
+    result = conn.execute(select([users]))
+
+    for row in result:
+        print(row)
+
     # Deletion
-    conn.execute(users.delete().where(users.c.name > 'h'))
+    print("Deletions")
+    conn.execute(users.delete().where(users.c.name > 'a'))
 
     result = conn.execute(select([users]))
 

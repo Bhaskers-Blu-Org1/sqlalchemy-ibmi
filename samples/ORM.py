@@ -59,9 +59,9 @@ session.add_all([
 
 ed_user.nickname = 'eddie'
 
-print(session.dirty)
+print("Changed data: " + session.dirty)
 
-print(session.new)
+print("New data: " + session.new)
 
 session.commit()
 
@@ -70,16 +70,16 @@ session.commit()
 ed_user.name = 'Edwardo'
 fake_user = User(name='fakeuser', fullname='Invalid', nickname='12345')
 session.add(fake_user)
-session.query(User).filter(User.name.in_(['Edwardo', 'fakeuser'])).all()
+print("Data: " + session.query(User).filter(User.name.in_(['Edwardo', 'fakeuser'])).all())
 
 # rollback new user added
 
 session.rollback()
 
-session.query(User).filter(User.name.in_(['Edwardo', 'fakeuser'])).all()
+print("Data: " + session.query(User).filter(User.name.in_(['Edwardo', 'fakeuser'])).all())
 
 # Querying
-
+print("Querying")
 for instance in session.query(User).order_by(User.name):
     print(instance.name, instance.fullname)
 
@@ -117,13 +117,13 @@ jack.addresses = [
 session.add(jack)
 session.commit()
 
-jack = session.query(User).filter_by(name='jack').one()
+print("Data with addresses: " + session.query(User).filter_by(name='jack').one())
 
 # Joins
 
-print(session.query(User).join(Address, User.id == Address.user_id).all())
+print("Data using join: " + session.query(User).join(Address, User.id == Address.user_id).all())
 
 # Deleting
 
 session.delete(jack)
-print(session.query(User).filter_by(name='jack').count())
+print("Count after deletion: " + session.query(User).filter_by(name='jack').count())
